@@ -47,7 +47,7 @@ def main():
                    f"{room['username']} • {room['age']} • {room['country'] or '??'}\n" \
                    f"{subject}\n\n" \
                    f"👉 {link_text}: {watch_link}\n\n" \
-                   f"#Chaturbate #CamGirls #LiveCams #Adult"
+                   f"#nsfw #realnsfw #bskynsfw #nsfwsky"
 
             # Create facet to make the link clickable
             link_start = text.find(link_text)
