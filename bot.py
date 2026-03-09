@@ -11,33 +11,30 @@ API_URL = "https://chaturbate.com/affiliates/api/onlinerooms/?format=json&wm=T2C
 MAX_POSTS_PER_RUN = 4
 
 def create_facets(text, watch_link, hashtags):
-    """Create manual facets for link and hashtags with byte indices"""
+    """Create official facets for clickable link + hashtags"""
     facets = []
-    byte_text = text.encode('utf-8')  # ATProtocol uses UTF-8 byte offsets
     
-    # Facet for clickable link
+    # Link facet ("Watch free")
     link_text = "Watch free"
     link_start_char = text.find(link_text)
     if link_start_char != -1:
-        link_end_char = link_start_char + len(link_text)
         link_start_byte = len(text[:link_start_char].encode('utf-8'))
         link_end_byte = link_start_byte + len(link_text.encode('utf-8'))
-        index = models.app.bsky.richtext.facet.ByteSlice(byteStart=link_start_byte, byteEnd=link_end_byte)
-        feature = models.app.bsky.richtext.facet.Link(uri=watch_link)
-        facet = models.app.bsky.richtext.facet.Main(index=index, features=[feature])
+        index = models.AppBskyRichtextFacet.ByteSlice(byteStart=link_start_byte, byteEnd=link_end_byte)
+        feature = models.AppBskyRichtextFacet.Link(uri=watch_link)
+        facet = models.AppBskyRichtextFacet.Main(index=index, features=[feature])
         facets.append(facet)
     
-    # Facets for each hashtag
+    # Hashtag facets
     for tag in hashtags:
         full_tag = f"#{tag}"
         tag_start_char = text.find(full_tag)
         if tag_start_char != -1:
-            tag_end_char = tag_start_char + len(full_tag)
             tag_start_byte = len(text[:tag_start_char].encode('utf-8'))
             tag_end_byte = tag_start_byte + len(full_tag.encode('utf-8'))
-            index = models.app.bsky.richtext.facet.ByteSlice(byteStart=tag_start_byte, byteEnd=tag_end_byte)
-            feature = models.app.bsky.richtext.facet.Tag(tag=tag)
-            facet = models.app.bsky.richtext.facet.Main(index=index, features=[feature])
+            index = models.AppBskyRichtextFacet.ByteSlice(byteStart=tag_start_byte, byteEnd=tag_end_byte)
+            feature = models.AppBskyRichtextFacet.Tag(tag=tag)
+            facet = models.AppBskyRichtextFacet.Main(index=index, features=[feature])
             facets.append(facet)
     
     return facets
@@ -60,7 +57,6 @@ def main():
         print(f"❌ API fetch failed: {e}")
         return
 
-    # Reliable filter - female public shows only
     filtered = [
         room for room in data
         if room.get('gender') == 'f' and room.get('current_show') == 'public'
@@ -80,23 +76,21 @@ def main():
             watch_link = room['chat_room_url_revshare']
             hashtags = ["Chaturbate", "CamGirls", "LiveCams", "Adult", "nsfw", "realnsfw", "bskynsfw", "nsfwsky"]
 
-            # Build PLAIN text (facets will make parts clickable)
             text = f"🔥 LIVE NOW ({room['num_users']} watching)\n\n" \
                    f"{room['username']} • {room['age']} • {room['country'] or '??'}\n" \
                    f"{subject}\n\n👉 Watch free\n\n" \
                    f"{' '.join([f'#{tag}' for tag in hashtags])}"
 
-            # Create facets for link + all hashtags
             facets = create_facets(text, watch_link, hashtags)
 
             client.send_image(
                 text=text,
                 image=img_bytes,
                 image_alt=f"Live HD cam of {room['username']}",
-                facets=facets  # ← This makes everything clickable
+                facets=facets
             )
 
-            print(f"✅ Posted #{i+1}: {room['username']} ({room['num_users']} viewers) — FULLY CLICKABLE (LINK + HASHTAGS)")
+            print(f"✅ Posted #{i+1}: {room['username']} ({room['num_users']} viewers) — LINK + HASHTAGS CLICKABLE")
             posted += 1
             time.sleep(12)
 
