@@ -45,22 +45,37 @@ def main():
 
             subject = (room.get('room_subject', '')[:80] + '...') if len(room.get('room_subject', '')) > 80 else room.get('room_subject', '')
 
-            # === CLICKABLE CHATURBATE LINK (this is the magic) ===
+            # === CLICKABLE LINK + PROPER HASHTAGS ===
             watch_link = room['chat_room_url_revshare']
             tb = client_utils.TextBuilder()
             tb.text(f"🔥 LIVE NOW ({room['num_users']} watching)\n\n")
             tb.text(f"{room['username']} • {room['age']} • {room['country'] or '??'}\n")
             tb.text(f"{subject}\n\n👉 ")
-            tb.link("Watch free", watch_link)                    # ← Official clickable link
-            tb.text("\n\n#Chaturbate #CamGirls #LiveCams #Adult #nsfw #realnsfw #bskynsfw #nsfwsky")
+            tb.link("Watch free", watch_link)
+            tb.text("\n\n")
+            tb.hashtag("Chaturbate")
+            tb.text(" ")
+            tb.hashtag("CamGirls")
+            tb.text(" ")
+            tb.hashtag("LiveCams")
+            tb.text(" ")
+            tb.hashtag("Adult")
+            tb.text(" ")
+            tb.hashtag("nsfw")
+            tb.text(" ")
+            tb.hashtag("realnsfw")
+            tb.text(" ")
+            tb.hashtag("bskynsfw")
+            tb.text(" ")
+            tb.hashtag("nsfwsky")
 
             client.send_image(
-                text=tb,                                         # TextBuilder = facets + clickable
+                text=tb,
                 image=img_bytes,
                 image_alt=f"Live HD cam of {room['username']}"
             )
 
-            print(f"✅ Posted #{i+1}: {room['username']} ({room['num_users']} viewers) — LINK CLICKABLE")
+            print(f"✅ Posted #{i+1}: {room['username']} ({room['num_users']} viewers) — LINK + HASHTAGS FIXED")
             posted += 1
             time.sleep(12)
 
