@@ -20,12 +20,11 @@ def create_facets(text, watch_link, hashtags):
     link_start_char = text.find(link_text)
     if link_start_char != -1:
         link_end_char = link_start_char + len(link_text)
-        # Convert char indices to byte indices (safe for ASCII, handles UTF-8)
         link_start_byte = len(text[:link_start_char].encode('utf-8'))
         link_end_byte = link_start_byte + len(link_text.encode('utf-8'))
-        index = models.AppBskyRichtextFacet.ByteSlice(byteStart=link_start_byte, byteEnd=link_end_byte)
-        feature = models.AppBskyRichtextFacet.Link(uri=watch_link)
-        facet = models.AppBskyRichtextFacet(index=index, features=[feature])
+        index = models.app.bsky.richtext.facet.ByteSlice(byteStart=link_start_byte, byteEnd=link_end_byte)
+        feature = models.app.bsky.richtext.facet.Link(uri=watch_link)
+        facet = models.app.bsky.richtext.facet.Main(index=index, features=[feature])
         facets.append(facet)
     
     # Facets for each hashtag
@@ -36,9 +35,9 @@ def create_facets(text, watch_link, hashtags):
             tag_end_char = tag_start_char + len(full_tag)
             tag_start_byte = len(text[:tag_start_char].encode('utf-8'))
             tag_end_byte = tag_start_byte + len(full_tag.encode('utf-8'))
-            index = models.AppBskyRichtextFacet.ByteSlice(byteStart=tag_start_byte, byteEnd=tag_end_byte)
-            feature = models.AppBskyRichtextFacet.Tag(tag=tag)
-            facet = models.AppBskyRichtextFacet(index=index, features=[feature])
+            index = models.app.bsky.richtext.facet.ByteSlice(byteStart=tag_start_byte, byteEnd=tag_end_byte)
+            feature = models.app.bsky.richtext.facet.Tag(tag=tag)
+            facet = models.app.bsky.richtext.facet.Main(index=index, features=[feature])
             facets.append(facet)
     
     return facets
@@ -79,7 +78,7 @@ def main():
             subject = (room.get('room_subject', '')[:80] + '...') if len(room.get('room_subject', '')) > 80 else room.get('room_subject', '')
 
             watch_link = room['chat_room_url_revshare']
-            hashtags = ["nsfw", "realnsfw", "bskynsfw", "nsfwsky"]
+            hashtags = ["Chaturbate", "CamGirls", "LiveCams", "Adult", "nsfw", "realnsfw", "bskynsfw", "nsfwsky"]
 
             # Build PLAIN text (facets will make parts clickable)
             text = f"🔥 LIVE NOW ({room['num_users']} watching)\n\n" \
